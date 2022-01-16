@@ -1,9 +1,17 @@
 <template>
   <div class="home">
-    <CarouselItem class="carousel">
+    <!-- slot에서 값을 가져오기 -->
+    <CarouselItem
+      class="carousel"
+      v-slot="{ currentSlide }"
+      :navigation="true"
+      :pagination="true"
+      :startAutoPlay="false"
+      :timeout="5000"
+    >
       <SlideItem v-for="(slide, index) in carouselSlides" :key="index">
-        <div class="slide-info">
-          <img :src="require(`../assets/${slide}.jpg`)" />
+        <div v-show="currentSlide === index + 1" class="slide-info">
+          <img :src="require(`../assets/${slide}.jpg`)" alt="slide img" />
         </div>
       </SlideItem>
     </CarouselItem>
