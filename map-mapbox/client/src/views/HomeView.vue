@@ -5,6 +5,16 @@
       :geoErrorMsg="geoErrorMsg"
       @closeGeoError="closeGeoError"
     />
+    <MapFeatures
+      :coords="coords"
+      :fetchCoords="fetchCoords"
+      @getGeolocation="getGeolocation"
+      @toggleSearchResults="toggleSearchResults"
+      @plotResult="plotResult"
+      @removeResult="removeResult"
+      :searchResults="searchResults"
+      class="w-full md:w-auto absolute md:top-[40px] md:left-[60px] z-[2]"
+    />
     <div id="map" class="h-full z-[1]"></div>
   </div>
 </template>
@@ -13,10 +23,11 @@
 import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 import GeoErrorModal from "@/components/GeoErrorModal.vue";
+import MapFeatures from "@/components/MapFeatures.vue";
 
 export default {
   name: "HomeView",
-  components: { GeoErrorModal },
+  components: { GeoErrorModal, MapFeatures },
   setup() {
     let map;
     onMounted(() => {
@@ -49,6 +60,13 @@ export default {
     const geoErrorMsg = ref(null);
 
     const getGeolocation = () => {
+      // 현재위치 사용 미사용 전환(초기화용)
+      if (coords.value) {
+        coords.value = null;
+        sessionStorage.removeItem("coords");
+        map.removeLayer(geoMarker.value);
+        return;
+      }
       // check session storage
       if (sessionStorage.getItem("coords")) {
         coords.value = JSON.parse(sessionStorage.getItem("coords"));
@@ -105,7 +123,34 @@ export default {
       geoErrorMsg.value = null;
     };
 
-    return { coords, geoMarker, closeGeoError, geoError, geoErrorMsg };
+    const resultMarker = ref(null);
+    const plotResult = (coords) => {
+      // If there is already a marker, remove it. Only allow 1
+      if (resultMarker.value) {
+        map.removeLayer(resultMarker.value);
+      }
+      const customMarker = leaflet.icon({
+        iconUrl: require("../assets/map-marker-blue.svg"),
+        iconSize: [35, 35], // size of the icon
+      });
+      resultMarker.value = leaflet
+        .marker([coords.coordinates[1], coords.coordinates[0]], {
+          icon: customMarker,
+        })
+        .addTo(map);
+      map.setView([coords.coordinates[1], coords.coordinates[0]], 13);
+    };
+
+    return {
+      coords,
+      fetchCoords,
+      geoMarker,
+      closeGeoError,
+      geoError,
+      geoErrorMsg,
+      getGeolocation,
+      plotResult,
+    };
   },
 };
 </script>
