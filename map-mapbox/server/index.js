@@ -13,4 +13,9 @@ app.use(cors());
 // routes
 app.use("/api/search/", require("./routes/searchResults.js"));
 
+// vue를 public에 빌드할 것
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(`${__dirname}/public`));
+}
+
 app.listen(PORT, () => console.log(`app has started on port: ${PORT}`));

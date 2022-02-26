@@ -9,7 +9,7 @@ router.get("/:query", async (req, res) => {
     const params = new URLSearchParams({
       access_token: process.env.API_KEY,
       // url qs로 붙어오는 내용들을 다 붙여줌(? 뒤에오는 키=값들)
-      ...url.parse(req.url, ture).query,
+      ...url.parse(req.url, true).query,
     });
     const query = req.params.query; // /뒤 파라이터 query 를 추출
     const { data } = await axios(
