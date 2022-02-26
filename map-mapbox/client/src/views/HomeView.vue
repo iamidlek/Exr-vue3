@@ -8,11 +8,11 @@
     <MapFeatures
       :coords="coords"
       :fetchCoords="fetchCoords"
+      :searchResults="searchResults"
       @getGeolocation="getGeolocation"
       @toggleSearchResults="toggleSearchResults"
       @plotResult="plotResult"
       @removeResult="removeResult"
-      :searchResults="searchResults"
       class="w-full md:w-auto absolute md:top-[40px] md:left-[60px] z-[2]"
     />
     <div id="map" class="h-full z-[1]"></div>
@@ -50,6 +50,12 @@ export default {
         )
         .addTo(map);
 
+      // 검색후 맵 이동시에 검색 결과창 닫기
+      map.on("moveend", () => {
+        closeSearchResults();
+      });
+
+      // 사용자 위치 가져오기
       getGeolocation();
     });
 
@@ -94,7 +100,9 @@ export default {
 
       plotGeolocation(coords.value);
     };
+
     const getLocError = (err) => {
+      // 좌표 가져오기 중지
       fetchCoords.value = null;
       geoError.value = true;
       geoErrorMsg.value = err.message;
@@ -118,6 +126,7 @@ export default {
       map.setView([coords.lat, coords.lng], 10);
     };
 
+    // 에러 모달 닫기
     const closeGeoError = () => {
       geoError.value = null;
       geoErrorMsg.value = null;
@@ -139,17 +148,36 @@ export default {
         })
         .addTo(map);
       map.setView([coords.coordinates[1], coords.coordinates[0]], 13);
+
+      //! 결과창 닫기
+      closeSearchResults();
+    };
+
+    const searchResults = ref(null);
+    // input에 focus되면 검색 결과창 보이게
+    const toggleSearchResults = () => {
+      searchResults.value = !searchResults.value;
+    };
+    const closeSearchResults = () => {
+      searchResults.value = null;
+    };
+
+    const removeResult = () => {
+      map.removeLayer(resultMarker.value);
     };
 
     return {
       coords,
       fetchCoords,
-      geoMarker,
       closeGeoError,
       geoError,
       geoErrorMsg,
       getGeolocation,
       plotResult,
+      searchResults,
+      toggleSearchResults,
+      closeSearchResults,
+      removeResult,
     };
   },
 };
