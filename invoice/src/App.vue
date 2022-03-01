@@ -39,7 +39,6 @@ export default {
     this.GET_INVOICES();
     this.checkScreen();
     window.addEventListener("resize", this.checkScreen);
-    window.addEventListener("resize", this.test);
   },
   methods: {
     ...mapActions("infoStore", ["GET_INVOICES"]),
@@ -50,9 +49,6 @@ export default {
         return;
       }
       this.mobile = false;
-    },
-    test() {
-      console.log(this.invoicesLoaded);
     },
   },
   computed: {
